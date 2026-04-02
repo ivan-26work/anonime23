@@ -199,10 +199,10 @@ cancelReplyBtn.addEventListener('click', () => {
 });
 
 // Partage lien - CORRIGÉ : lien avec from= et photo
+// Partage lien - version courte sans photo
 shareLinkBtn.addEventListener('click', async () => {
-    const photoData = currentProfilePhoto || '../icons/profil.png';
-    const encodedPhoto = encodeURIComponent(photoData);
-    const link = `${window.location.origin}/envoi.html?from=${currentUser.id}&photo=${encodedPhoto}`;
+    const baseUrl = 'https://ivan-26work.github.io/anonime23';
+    const link = `${baseUrl}/envoi.html?from=${currentUser.id}`;
     
     await navigator.clipboard.writeText(link);
     
