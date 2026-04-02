@@ -4,6 +4,7 @@ let currentUser = null;
 let messages = [];
 let currentMessageId = null;
 let currentProfilePhoto = null;
+let oneSignalInitialized = false;
 
 // Éléments DOM
 const messagesContainer = document.getElementById('messagesContainer');
@@ -62,6 +63,36 @@ async function init() {
     loadProfilePhoto();
     loadMessages();
     setupRealtime();
+    initOneSignal();
+}
+
+// OneSignal notification
+async function initOneSignal() {
+    if (window.OneSignal && !oneSignalInitialized) {
+        oneSignalInitialized = true;
+        
+        // Demander permission après connexion
+        const permission = await window.OneSignal.Notifications.requestPermission();
+        if (permission) {
+            console.log('Notifications activées');
+            // Récupérer l'ID OneSignal
+            const playerId = await window.OneSignal.User.getOnesignalId();
+            if (playerId) {
+                await savePushSubscription(playerId);
+            }
+        }
+    }
+}
+
+async function savePushSubscription(playerId) {
+    if (!currentUser) return;
+    await window.supabaseClient
+        .from('push_subscriptions')
+        .upsert({
+            user_id: currentUser.id,
+            player_id: playerId,
+            updated_at: new Date().toISOString()
+        });
 }
 
 // Photo de profil
@@ -199,8 +230,7 @@ cancelReplyBtn.addEventListener('click', () => {
     replyText.value = '';
 });
 
-// Partage lien - Version GitHub Pages
-// Partage lien - version courte sans photo
+// Partage lien
 shareLinkBtn.addEventListener('click', async () => {
     const baseUrl = 'https://ivan-26work.github.io/anonime23';
     const link = `${baseUrl}/envoi.html?from=${currentUser.id}`;
@@ -217,6 +247,7 @@ shareLinkBtn.addEventListener('click', async () => {
         alert('Lien copié : ' + link);
     }
 });
+
 // Supprimer tous
 deleteAllBtn.addEventListener('click', async () => {
     if (confirm('Supprimer TOUS les messages ?')) {
@@ -275,16 +306,36 @@ privacyBtn.addEventListener('click', () => window.location.href = 'privacy.html'
 
 installBtn.addEventListener('click', () => alert('Installation PWA à configurer'));
 
-// Realtime
+// Realtime avec notification push
 function setupRealtime() {
     window.supabaseClient
         .channel('messages')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, async (payload) => {
             if (payload.new.receiver_id === currentUser.id) {
                 loadMessages();
+                // Envoyer notification push via OneSignal
+                await sendPushNotification(payload.new.sender_id, payload.new.content);
             }
         })
         .subscribe();
+}
+
+async function sendPushNotification(senderId, messagePreview) {
+    // Récupérer le player_id du destinataire
+    const { data } = await window.supabaseClient
+        .from('push_subscriptions')
+        .select('player_id')
+        .eq('user_id', currentUser.id)
+        .single();
+    
+    if (data && data.player_id && window.OneSignal) {
+        // Afficher notification via OneSignal
+        window.OneSignal.Notifications.addTrigger({
+            title: "Nouveau message anonyme",
+            body: messagePreview.substring(0, 100),
+            url: window.location.href
+        });
+    }
 }
 
 function formatDate(iso) {
