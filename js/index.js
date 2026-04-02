@@ -321,7 +321,6 @@ function setupRealtime() {
 }
 
 async function sendPushNotification(senderId, messagePreview) {
-    // Récupérer le player_id du destinataire
     const { data } = await window.supabaseClient
         .from('push_subscriptions')
         .select('player_id')
@@ -329,14 +328,23 @@ async function sendPushNotification(senderId, messagePreview) {
         .single();
     
     if (data && data.player_id && window.OneSignal) {
-        // Afficher notification via OneSignal
-        window.OneSignal.Notifications.addTrigger({
-            title: "Nouveau message anonyme",
-            body: messagePreview.substring(0, 100),
-            url: window.location.href
-        });
+        try {
+            await window.OneSignal.Notifications.addTrigger({
+                contents: {
+                    en: messagePreview.substring(0, 100),
+                    fr: messagePreview.substring(0, 100)
+                },
+                headings: {
+                    en: "New anonymous message",
+                    fr: "Nouveau message anonyme"
+                },
+                url: window.location.href
+            });
+        } catch (error) {
+            console.error("Erreur envoi notification:", error);
+        }
     }
-}
+        }
 
 function formatDate(iso) {
     const date = new Date(iso);
