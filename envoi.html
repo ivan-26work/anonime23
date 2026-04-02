@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Anonima23 - Envoyer un message</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e0e5ec;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: #e0e5ec;
+            border-radius: 40px;
+            padding: 30px 25px;
+            box-shadow: 5px 5px 12px #a3b1c6, -5px -5px 12px #ffffff;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e66;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #5a6e8a;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+
+        .message-input {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e66;
+            font-weight: 500;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            background: #e0e5ec;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            box-shadow: inset 3px 3px 6px #a3b1c6, inset -3px -3px 6px #ffffff;
+            outline: none;
+        }
+
+        /* Messages prédéfinis */
+        .preset-title {
+            margin: 20px 0 12px 0;
+            color: #2c3e66;
+            font-weight: 500;
+        }
+
+        .preset-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .preset-btn {
+            background: #e0e5ec;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: #2c3e66;
+            box-shadow: 2px 2px 4px #a3b1c6, -2px -2px 4px #ffffff;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:active {
+            box-shadow: inset 2px 2px 4px #a3b1c6, inset -2px -2px 4px #ffffff;
+        }
+
+        .send-btn {
+            width: 100%;
+            padding: 14px;
+            background: #e0e5ec;
+            border: none;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: #2c3e66;
+            box-shadow: 3px 3px 6px #a3b1c6, -3px -3px 6px #ffffff;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .send-btn:active {
+            box-shadow: inset 3px 3px 6px #a3b1c6, inset -3px -3px 6px #ffffff;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            z-index: 1000;
+            display: none;
+        }
+
+        .notification.success {
+            background: #00c853;
+            color: white;
+        }
+
+        .notification.error {
+            background: #ff4444;
+            color: white;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #5a6e8a;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1><i class="fas fa-paper-plane"></i> Anonima23</h1>
+    <div class="subtitle">Envoyez un message anonyme</div>
+
+    <div class="message-input">
+        <label>Votre message :</label>
+        <textarea id="messageContent" rows="4" placeholder="Écrivez votre message ici..."></textarea>
+    </div>
+
+    <div class="preset-title">
+        <i class="fas fa-list"></i> Messages prédéfinis :
+    </div>
+    <div class="preset-buttons" id="presetButtons">
+        <button class="preset-btn" data-msg="Salut, comment ça va ?">👋 Salut, comment ça va ?</button>
+        <button class="preset-btn" data-msg="J'aime ton style !">❤️ J'aime ton style !</button>
+        <button class="preset-btn" data-msg="On se parle ?">💬 On se parle ?</button>
+        <button class="preset-btn" data-msg="Tu es intéressant(e)">✨ Tu es intéressant(e)</button>
+        <button class="preset-btn" data-msg="Bonne journée !">☀️ Bonne journée !</button>
+    </div>
+
+    <button class="send-btn" id="sendBtn">
+        <i class="fas fa-paper-plane"></i> Envoyer anonymement
+    </button>
+    <a href="index.html" class="back-link">← Retour à l'accueil</a>
+</div>
+
+<div id="notification" class="notification"></div>
+
+<script>
+    // Éviter double déclaration
+    if (!window.supabaseClient) {
+        const SUPABASE_URL = 'https://rdfdkfzrzatkidkrkrxl.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkZmRrZnpyemF0a2lka3JrcnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMTk3OTgsImV4cCI6MjA5MDY5NTc5OH0.YQYV7NJ8DxxQp6PNz83yAtX-r-a4AAJ4EdpMybPj-iQ';
+        window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    // Récupérer les paramètres de l'URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const receiverId = urlParams.get('from');  // L'expéditeur du lien = destinataire du message
+    const senderPhoto = urlParams.get('photo');
+
+    // Appliquer la photo de profil floutée en arrière-plan
+    if (senderPhoto) {
+        const decodedPhoto = decodeURIComponent(senderPhoto);
+        document.body.style.backgroundImage = `url(${decodedPhoto})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundRepeat = 'no-repeat';
+        
+        // Ajouter un filtre flou sur le body
+        const overlayBlur = document.createElement('div');
+        overlayBlur.style.position = 'fixed';
+        overlayBlur.style.top = '0';
+        overlayBlur.style.left = '0';
+        overlayBlur.style.width = '100%';
+        overlayBlur.style.height = '100%';
+        overlayBlur.style.backdropFilter = 'blur(15px)';
+        overlayBlur.style.backgroundColor = 'rgba(0,0,0,0.3)';
+        overlayBlur.style.zIndex = '-1';
+        document.body.appendChild(overlayBlur);
+    }
+
+    const messageContent = document.getElementById('messageContent');
+    const sendBtn = document.getElementById('sendBtn');
+    const presetBtns = document.querySelectorAll('.preset-btn');
+    const notificationDiv = document.getElementById('notification');
+
+    function showNotification(message, type) {
+        notificationDiv.textContent = message;
+        notificationDiv.className = `notification ${type}`;
+        notificationDiv.style.display = 'block';
+        setTimeout(() => {
+            notificationDiv.style.display = 'none';
+        }, 3000);
+    }
+
+    // Messages prédéfinis
+    presetBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            messageContent.value = btn.getAttribute('data-msg');
+        });
+    });
+
+    // Envoi du message
+    sendBtn.addEventListener('click', async () => {
+        const content = messageContent.value.trim();
+        
+        if (!content) {
+            showNotification('Veuillez écrire un message', 'error');
+            return;
+        }
+        if (!receiverId) {
+            showNotification('Destinataire invalide', 'error');
+            return;
+        }
+
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        
+        if (!user) {
+            showNotification('Vous devez être connecté', 'error');
+            setTimeout(() => {
+                window.location.href = 'auth.html';
+            }, 2000);
+            return;
+        }
+
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
+
+        const { error } = await window.supabaseClient
+            .from('messages')
+            .insert({
+                sender_id: user.id,
+                receiver_id: receiverId,
+                content: content,
+                created_at: new Date().toISOString()
+            });
+
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Envoyer anonymement';
+
+        if (error) {
+            showNotification('Erreur : ' + error.message, 'error');
+        } else {
+            showNotification('Message envoyé !', 'success');
+            messageContent.value = '';
+        }
+    });
+</script>
+
+</body>
+</html>
