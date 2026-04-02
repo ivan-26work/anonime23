@@ -4,7 +4,6 @@ let currentUser = null;
 let messages = [];
 let currentMessageId = null;
 let currentProfilePhoto = null;
-let oneSignalInitialized = false;
 
 // Éléments DOM
 const messagesContainer = document.getElementById('messagesContainer');
@@ -63,36 +62,59 @@ async function init() {
     loadProfilePhoto();
     loadMessages();
     setupRealtime();
-    initOneSignal();
+    await subscribeToPush(); // Web Push API
 }
 
-// OneSignal notification
-async function initOneSignal() {
-    if (window.OneSignal && !oneSignalInitialized) {
-        oneSignalInitialized = true;
+// Web Push API - Convertir clé VAPID
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
+// Demander permission et sauvegarder subscription
+async function subscribeToPush() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        console.log('Push non supporté sur ce navigateur');
+        return;
+    }
+
+    try {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array('BJWea7UemOPRY6rDiMHsRgx1aMr26-xoaZcI5JlhWGLPbS-fRgCSbxfQ0XkT67ZGNjfLQXYuBfbjGaObiXLntAU')
+        });
+
+        await window.supabaseClient
+            .from('push_subscriptions')
+            .upsert({
+                user_id: currentUser.id,
+                subscription: subscription
+            });
         
-        // Demander permission après connexion
-        const permission = await window.OneSignal.Notifications.requestPermission();
-        if (permission) {
-            console.log('Notifications activées');
-            // Récupérer l'ID OneSignal
-            const playerId = await window.OneSignal.User.getOnesignalId();
-            if (playerId) {
-                await savePushSubscription(playerId);
-            }
-        }
+        console.log('Push subscription sauvegardée');
+    } catch (error) {
+        console.error('Erreur subscription push:', error);
     }
 }
 
-async function savePushSubscription(playerId) {
-    if (!currentUser) return;
-    await window.supabaseClient
-        .from('push_subscriptions')
-        .upsert({
-            user_id: currentUser.id,
-            player_id: playerId,
-            updated_at: new Date().toISOString()
+// Envoyer notification via Edge Function
+async function sendPushNotification(userId, title, body) {
+    try {
+        await fetch('https://rdfdkfzrzatkidkrkrxl.supabase.co/functions/v1/send-push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: userId, title, body })
         });
+    } catch (error) {
+        console.error('Erreur envoi notification:', error);
+    }
 }
 
 // Photo de profil
@@ -232,7 +254,7 @@ cancelReplyBtn.addEventListener('click', () => {
 
 // Partage lien
 shareLinkBtn.addEventListener('click', async () => {
-    const baseUrl = 'https://ivan-26work.github.io/anonime23';
+    const baseUrl = 'https://ficheaej.online';
     const link = `${baseUrl}/envoi.html?from=${currentUser.id}`;
     
     await navigator.clipboard.writeText(link);
@@ -261,7 +283,7 @@ async function deleteMessage(id) {
     loadMessages();
 }
 
-// Boutons partage (simulation)
+// Boutons partage
 sendReplyBtn.addEventListener('click', () => {
     alert('Message envoyé (simulation)');
 });
@@ -313,38 +335,15 @@ function setupRealtime() {
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, async (payload) => {
             if (payload.new.receiver_id === currentUser.id) {
                 loadMessages();
-                // Envoyer notification push via OneSignal
-                await sendPushNotification(payload.new.sender_id, payload.new.content);
+                await sendPushNotification(
+                    currentUser.id,
+                    'Nouveau message anonyme',
+                    payload.new.content.substring(0, 100)
+                );
             }
         })
         .subscribe();
 }
-
-async function sendPushNotification(senderId, messagePreview) {
-    const { data } = await window.supabaseClient
-        .from('push_subscriptions')
-        .select('player_id')
-        .eq('user_id', currentUser.id)
-        .single();
-    
-    if (data && data.player_id && window.OneSignal) {
-        try {
-            await window.OneSignal.Notifications.addTrigger({
-                contents: {
-                    en: messagePreview.substring(0, 100),
-                    fr: messagePreview.substring(0, 100)
-                },
-                headings: {
-                    en: "New anonymous message",
-                    fr: "Nouveau message anonyme"
-                },
-                url: window.location.href
-            });
-        } catch (error) {
-            console.error("Erreur envoi notification:", error);
-        }
-    }
-        }
 
 function formatDate(iso) {
     const date = new Date(iso);
