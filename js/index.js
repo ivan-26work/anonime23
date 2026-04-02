@@ -71,8 +71,8 @@ function loadProfilePhoto() {
         profilePic.src = savedPhoto;
         currentProfilePhoto = savedPhoto;
     } else {
-        profilePic.src = '../icons/profil.png';
-        currentProfilePhoto = '../icons/profil.png';
+        profilePic.src = 'icons/profil.png';
+        currentProfilePhoto = 'icons/profil.png';
     }
 }
 
@@ -169,7 +169,7 @@ closeOverlayBtn.addEventListener('click', () => {
 // Répondre
 function openReplyOverlay(msg) {
     originalMessageSpan.textContent = msg.content;
-    const profilePhotoUrl = currentProfilePhoto || '../icons/profil.png';
+    const profilePhotoUrl = currentProfilePhoto || 'icons/profil.png';
     replyInputArea.style.backgroundImage = `url(${profilePhotoUrl})`;
     replyInputArea.style.backgroundSize = 'cover';
     replyInputArea.style.backgroundPosition = 'center';
@@ -190,6 +190,7 @@ function openReplyOverlay(msg) {
         replyOverlay.style.display = 'none';
         replyText.value = '';
         alert('Message envoyé');
+        loadMessages();
     };
 }
 
@@ -198,7 +199,7 @@ cancelReplyBtn.addEventListener('click', () => {
     replyText.value = '';
 });
 
-// Partage lien - CORRIGÉ : lien avec from= et photo
+// Partage lien - Version GitHub Pages
 // Partage lien - version courte sans photo
 shareLinkBtn.addEventListener('click', async () => {
     const baseUrl = 'https://ivan-26work.github.io/anonime23';
@@ -216,7 +217,6 @@ shareLinkBtn.addEventListener('click', async () => {
         alert('Lien copié : ' + link);
     }
 });
-
 // Supprimer tous
 deleteAllBtn.addEventListener('click', async () => {
     if (confirm('Supprimer TOUS les messages ?')) {
@@ -245,6 +245,12 @@ shareInstaBtn.addEventListener('click', () => {
 });
 
 // Mode nuit
+const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+if (savedDarkMode) {
+    document.body.classList.add('dark-mode');
+    darkModeToggle.checked = true;
+}
+
 darkModeToggle.addEventListener('change', (e) => {
     document.body.classList.toggle('dark-mode', e.target.checked);
     localStorage.setItem('darkMode', e.target.checked);
