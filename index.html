@@ -8,6 +8,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0077b6">
+    
+    <!-- OneSignal SDK -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(async function(OneSignal) {
+            await OneSignal.init({
+                appId: "2ff06dd6-59e7-4b41-853b-3286d7426754",
+            });
+        });
+    </script>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
@@ -25,7 +37,7 @@
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <div class="profile-pic-container">
-            <img id="profilePic" src="../icons/profil.png" alt="profil" class="profile-pic">
+            <img id="profilePic" src="icons/profil.png" alt="profil" class="profile-pic">
             <label for="uploadPhoto" class="upload-icon"><i class="fas fa-camera"></i></label>
             <input type="file" id="uploadPhoto" accept="image/*" style="display:none">
         </div>
@@ -101,14 +113,13 @@
 </div>
 
 <script>
-    // Initialisation Supabase AVANT index.js
-    if (typeof window.supabaseClient === 'undefined') {
+    // Initialisation Supabase
+    if (!window.supabaseClient) {
         const SUPABASE_URL = 'https://rdfdkfzrzatkidkrkrxl.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkZmRrZnpyemF0a2lka3JrcnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMTk3OTgsImV4cCI6MjA5MDY5NTc5OH0.YQYV7NJ8DxxQp6PNz83yAtX-r-a4AAJ4EdpMybPj-iQ';
         window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 </script>
 <script src="js/index.js"></script>
-<script src="js/index-nav.js"></script>
 </body>
 </html>
