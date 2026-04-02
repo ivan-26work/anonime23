@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Anonima23 - Messages</title>
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0077b6">
+    
+    <!-- OneSignal SDK -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(async function(OneSignal) {
+            await OneSignal.init({
+                appId: "2ff06dd6-59e7-4b41-853b-3286d7426754",
+            });
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+
+<!-- Header principal -->
+<header class="main-header">
+    <h1 class="page-title">MESSAGES</h1>
+    <div class="hamburger" id="hamburger">
+        <i class="fas fa-bars"></i>
+    </div>
+</header>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="profile-pic-container">
+            <img id="profilePic" src="icons/profil.png" alt="profil" class="profile-pic">
+            <label for="uploadPhoto" class="upload-icon"><i class="fas fa-camera"></i></label>
+            <input type="file" id="uploadPhoto" accept="image/*" style="display:none">
+        </div>
+        <div class="profile-email" id="profileEmail">user@example.com</div>
+        <button class="close-sidebar" id="closeSidebar">&times;</button>
+    </div>
+    <div class="sidebar-content">
+        <div class="toggle-container">
+            <span>Mode nuit</span>
+            <label class="switch">
+                <input type="checkbox" id="darkModeToggle">
+                <span class="slider round"></span>
+            </label>
+        </div>
+        <button class="sidebar-btn" id="shareLinkBtn">
+            <i class="fas fa-share-alt"></i> Partager mon lien
+        </button>
+        <button class="sidebar-btn" id="deleteAllBtn">
+            <i class="fas fa-trash-alt"></i> Supprimer tous les messages
+        </button>
+        <hr>
+        <button class="sidebar-btn" id="aboutBtn">
+            <i class="fas fa-info-circle"></i> À propos
+        </button>
+        <button class="sidebar-btn" id="contactBtn">
+            <i class="fas fa-envelope"></i> Contact
+        </button>
+        <button class="sidebar-btn" id="privacyBtn">
+            <i class="fas fa-shield-alt"></i> Confidentialité
+        </button>
+    </div>
+    <div class="sidebar-footer">
+        <button class="install-btn" id="installBtn">
+            <i class="fas fa-download"></i> Installer l'App
+        </button>
+    </div>
+</div>
+<div class="overlay" id="overlaySidebar"></div>
+
+<!-- Zone des messages -->
+<main class="messages-container" id="messagesContainer">
+    <div class="empty-state">Chargement...</div>
+</main>
+
+<!-- Overlay pour afficher un message -->
+<div id="messageOverlay" class="message-overlay" style="display:none;">
+    <div class="overlay-header">
+        <h3 id="overlayTitle">Nouveau message !</h3>
+        <span id="overlayDate"></span>
+        <button class="close-overlay" id="closeOverlayBtn">&times;</button>
+    </div>
+    <div class="overlay-content" id="overlayContent"></div>
+    <div class="reply-footer" id="replyFooter" style="display:none;">
+        <button id="sendReplyBtn" class="reply-btn"><i class="fas fa-paper-plane"></i> Envoyé</button>
+        <button id="shareWhatsappBtn" class="reply-btn"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+        <button id="shareSnapBtn" class="reply-btn"><i class="fab fa-snapchat"></i> Snap</button>
+        <button id="shareInstaBtn" class="reply-btn"><i class="fab fa-instagram"></i> Insta</button>
+    </div>
+</div>
+
+<!-- Overlay pour répondre -->
+<div id="replyOverlay" class="reply-overlay" style="display:none;">
+    <div class="reply-container">
+        <div class="original-message" id="originalMessage"></div>
+        <div class="reply-input-area" id="replyInputArea">
+            <textarea id="replyText" placeholder="Votre réponse..." rows="3"></textarea>
+        </div>
+        <div class="reply-actions">
+            <button id="submitReplyBtn" class="btn-primary">Envoyer</button>
+            <button id="cancelReplyBtn" class="btn-secondary">Annuler</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialisation Supabase
+    if (!window.supabaseClient) {
+        const SUPABASE_URL = 'https://rdfdkfzrzatkidkrkrxl.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkZmRrZnpyemF0a2lka3JrcnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMTk3OTgsImV4cCI6MjA5MDY5NTc5OH0.YQYV7NJ8DxxQp6PNz83yAtX-r-a4AAJ4EdpMybPj-iQ';
+        window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+</script>
+<script src="js/index.js"></script>
+</body>
+</html>
