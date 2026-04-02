@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Anonima23 - Réinitialisation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e0e5ec;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 450px;
+            width: 100%;
+            background: #e0e5ec;
+            border-radius: 40px;
+            padding: 35px 25px;
+            box-shadow: 5px 5px 12px #a3b1c6, -5px -5px 12px #ffffff;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e66;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            color: #5a6e8a;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 18px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 50px;
+            background: #e0e5ec;
+            font-size: 1rem;
+            box-shadow: inset 3px 3px 6px #a3b1c6, inset -3px -3px 6px #ffffff;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #e0e5ec;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: #2c3e66;
+            box-shadow: 3px 3px 6px #a3b1c6, -3px -3px 6px #ffffff;
+            transition: all 0.2s;
+            margin-top: 15px;
+        }
+
+        button:active {
+            box-shadow: inset 3px 3px 6px #a3b1c6, inset -3px -3px 6px #ffffff;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            color: #5a6e8a;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            z-index: 1000;
+            display: none;
+        }
+
+        .notification.success {
+            background: #00c853;
+            color: white;
+        }
+
+        .notification.error {
+            background: #ff4444;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1><i class="fas fa-key"></i> Nouveau mot de passe</h1>
+    <div class="subtitle">Entrez votre nouveau mot de passe</div>
+
+    <input type="password" id="newPassword" placeholder="Nouveau mot de passe" autocomplete="new-password">
+    <input type="password" id="confirmPassword" placeholder="Confirmer le mot de passe">
+
+    <button id="resetBtn">Réinitialiser</button>
+    <a href="auth.html" class="back-link">← Retour à la connexion</a>
+</div>
+
+<div id="notification" class="notification"></div>
+
+<script>
+    if (!window.supabaseClient) {
+        const SUPABASE_URL = 'https://rdfdkfzrzatkidkrkrxl.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkZmRrZnpyemF0a2lka3JrcnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMTk3OTgsImV4cCI6MjA5MDY5NTc5OH0.YQYV7NJ8DxxQp6PNz83yAtX-r-a4AAJ4EdpMybPj-iQ';
+        window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    const newPassword = document.getElementById('newPassword');
+    const confirmPassword = document.getElementById('confirmPassword');
+    const resetBtn = document.getElementById('resetBtn');
+    const notification = document.getElementById('notification');
+
+    function showMessage(msg, type) {
+        notification.textContent = msg;
+        notification.className = `notification ${type}`;
+        notification.style.display = 'block';
+        setTimeout(() => notification.style.display = 'none', 4000);
+    }
+
+    resetBtn.addEventListener('click', async () => {
+        const pwd = newPassword.value;
+        const confirm = confirmPassword.value;
+
+        if (!pwd || !confirm) {
+            showMessage('Veuillez remplir tous les champs', 'error');
+            return;
+        }
+
+        if (pwd !== confirm) {
+            showMessage('Les mots de passe ne correspondent pas', 'error');
+            return;
+        }
+
+        if (pwd.length < 6) {
+            showMessage('Le mot de passe doit contenir au moins 6 caractères', 'error');
+            return;
+        }
+
+        resetBtn.disabled = true;
+        resetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> En cours...';
+
+        const { error } = await window.supabaseClient.auth.updateUser({
+            password: pwd
+        });
+
+        resetBtn.disabled = false;
+        resetBtn.innerHTML = 'Réinitialiser';
+
+        if (error) {
+            showMessage('Erreur : ' + error.message, 'error');
+        } else {
+            showMessage('Mot de passe mis à jour ! Redirection...', 'success');
+            setTimeout(() => {
+                window.location.href = 'auth.html';
+            }, 2000);
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -10,11 +10,6 @@
     <meta name="theme-color" content="#0077b6">
     
     <!-- OneSignal SDK -->
-    <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/OneSignalSDKWorker.js');
-    }
-                                   </script>
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
         window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -116,6 +111,11 @@
         </div>
     </div>
 </div>
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+    }
+</script>
 
 <script>
     // Initialisation Supabase
@@ -125,6 +125,7 @@
         window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 </script>
+
 <script src="js/index.js"></script>
 </body>
 </html>
