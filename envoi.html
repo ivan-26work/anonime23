@@ -190,31 +190,9 @@
         window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 
-    // Récupérer les paramètres de l'URL
+    // Récupérer le destinataire depuis l'URL
     const urlParams = new URLSearchParams(window.location.search);
-    const receiverId = urlParams.get('from');  // L'expéditeur du lien = destinataire du message
-    const senderPhoto = urlParams.get('photo');
-
-    // Appliquer la photo de profil floutée en arrière-plan
-    if (senderPhoto) {
-        const decodedPhoto = decodeURIComponent(senderPhoto);
-        document.body.style.backgroundImage = `url(${decodedPhoto})`;
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center';
-        document.body.style.backgroundRepeat = 'no-repeat';
-        
-        // Ajouter un filtre flou sur le body
-        const overlayBlur = document.createElement('div');
-        overlayBlur.style.position = 'fixed';
-        overlayBlur.style.top = '0';
-        overlayBlur.style.left = '0';
-        overlayBlur.style.width = '100%';
-        overlayBlur.style.height = '100%';
-        overlayBlur.style.backdropFilter = 'blur(15px)';
-        overlayBlur.style.backgroundColor = 'rgba(0,0,0,0.3)';
-        overlayBlur.style.zIndex = '-1';
-        document.body.appendChild(overlayBlur);
-    }
+    const receiverId = urlParams.get('from');
 
     const messageContent = document.getElementById('messageContent');
     const sendBtn = document.getElementById('sendBtn');
@@ -283,6 +261,5 @@
         }
     });
 </script>
-
 </body>
 </html>
