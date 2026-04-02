@@ -1,0 +1,413 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(to bottom, #ffffff 50%, #e8ecf1 50%);
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Header moderne */
+.header {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    height: 55px;
+    background: #0077b6;
+    border: 2px solid #00d2ff;
+    border-radius: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    margin: 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    z-index: 100;
+}
+
+.logo {
+    font-weight: bold;
+    font-size: 1.3rem;
+    color: #ffffff;
+    background: #005f8c;
+    padding: 8px 18px;
+    border-radius: 40px;
+    letter-spacing: 1px;
+}
+
+/* Bouton sidebar toggle vert */
+.sidebar-toggle {
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #ffffff;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #00a86b;
+    transition: all 0.2s;
+}
+
+.sidebar-toggle:hover {
+    background: #008f5a;
+    transform: scale(1.05);
+}
+
+
+/* Background bas de page */
+body::after {
+    content: "";
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: url('../icons/background.png') repeat;
+    background-size: cover;
+    z-index: -2;
+}
+
+/* Main content */
+.main-content {
+    position: relative;
+    z-index: 5;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px 40px 20px;
+}
+
+/* Formulaires (inchangés) */
+.form {
+    display: none;
+    width: 100%;
+    max-width: 420px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 28px;
+    padding: 40px 32px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,210,255,0.2);
+    border: 1px solid rgba(0,210,255,0.3);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.form.active {
+    display: block;
+}
+
+.form h2 {
+    text-align: center;
+    margin-bottom: 28px;
+    color: #16213e;
+    font-size: 1.8rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+.form input {
+    width: 100%;
+    padding: 14px 16px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 50px;
+    font-size: 1rem;
+    background: rgba(255,255,255,0.95);
+    transition: all 0.2s;
+}
+
+.form input:focus {
+    outline: none;
+    border-color: #00d2ff;
+    box-shadow: 0 0 0 3px rgba(0,210,255,0.2);
+}
+
+.checkbox-container {
+    margin: 15px 0;
+    color: #16213e;
+}
+
+.forgot-link {
+    display: block;
+    text-align: right;
+    margin: 10px 0;
+    color: #00a8cc;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #00d2ff, #0077b6);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,210,255,0.4);
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 280px;
+    height: 100%;
+    background: #1a1a2e;
+    box-shadow: -4px 0 20px rgba(0,0,0,0.3);
+    transition: right 0.3s ease;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    border-radius: 30px 0 0 30px;
+}
+
+.sidebar.open {
+    right: 0;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #00d2ff33;
+}
+
+.sidebar-header h3 {
+    color: #00d2ff;
+}
+
+.close-sidebar {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #00d2ff;
+}
+
+.sidebar-content {
+    flex: 1;
+    padding: 20px;
+}
+
+.toggle-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #00d2ff33;
+    color: #eee;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #2a2a3e;
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #00d2ff;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #0077b6;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* Boutons sidebar - identiques au bouton installer mais bleus */
+.sidebar-btn {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    background: linear-gradient(135deg, #00d2ff, #0077b6);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    padding-left: 20px;
+}
+
+.sidebar-btn i {
+    margin-right: 12px;
+    width: 20px;
+    color: white;
+}
+
+.sidebar-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,210,255,0.4);
+}
+
+hr {
+    margin: 15px 0;
+    border: none;
+    border-top: 1px solid #00d2ff33;
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid #00d2ff33;
+}
+
+.install-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #00d2ff, #0077b6);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.install-btn i {
+    margin-right: 8px;
+}
+
+.install-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,210,255,0.4);
+}
+
+/* Overlay */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    visibility: hidden;
+    opacity: 0;
+    transition: 0.3s;
+    z-index: 999;
+}
+
+.overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Mode nuit */
+body.dark-mode .sidebar-btn {
+    background: linear-gradient(135deg, #0088cc, #005f8c);
+}
+
+body.dark-mode .install-btn {
+    background: linear-gradient(135deg, #0088cc, #005f8c);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .form {
+        padding: 30px 20px;
+        margin: 0 15px;
+    }
+    
+    .sidebar {
+        width: 260px;
+    }
+}
+.notification-area {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 400px;
+    z-index: 200;
+    text-align: center;
+}
+
+.message {
+    padding: 12px 20px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    animation: fadeInDown 0.3s ease;
+}
+
+.message.error {
+    background: #ff4444;
+    color: white;
+}
+
+.message.success {
+    background: #00c853;
+    color: white;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
